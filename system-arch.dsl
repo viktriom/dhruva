@@ -9,7 +9,7 @@
 //  stable identifier `platform`, so a rename touches zero structural lines.
 // =============================================================================
 
-!const PLATFORM_NAME  "FASTER2.0"
+!const PLATFORM_NAME  "DHRUVA-1.0"
 !const PLATFORM_DESC  "Platform to define, verify, test and group computational models over curated datasets, orchestrate their execution lifecycle, govern input data, and expose everything through dashboards and a natural-language agent."
 
 workspace "${PLATFORM_NAME}" "${PLATFORM_NAME} - Regulatory / Risk-Computation Forecasting Platform" {
