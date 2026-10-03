@@ -1,0 +1,52 @@
+name: Compile Structurizr to Mermaid
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - './workspace.dsl'
+
+jobs:
+  build-and-render:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Grants permission to commit the markdown file back
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Create Output Directory
+        run: mkdir -p docs/architecture
+
+      - name: Export DSL to Mermaid text
+        # We target the root workspace folder to process the DSL
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}:/usr/local/structurizr \
+            structurizr/structurizr \
+            export -workspace system-arch.dsl -format mermaid -output docs/architecture
+        # Note: Change "workspace.dsl" if your file lives deep inside a subdirectory in Git
+
+      - name: Format into Markdown files
+        run: |
+          for file in docs/architecture/*.mermaid; do
+            if [ -f "$file" ]; then
+              # Target markdown filename matching the view
+              md_file="${file%.mermaid}.md"
+              
+              echo "### Architecture View: $(basename "$file" .mermaid)" > "$md_file"
+              echo '```mermaid' >> "\$md_file"
+              cat "file" >> "md_file"
+              echo '```' >> "$md_file"
+              
+              # Clean up raw text file so only markdown remains
+              rm "$file"
+            fi
+          done
+
+      - name: Commit and Push changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "docs: auto-generate architectural Mermaid diagrams [skip ci]"
+          file_pattern: "docs/architecture/*.md"
